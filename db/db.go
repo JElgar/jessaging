@@ -20,10 +20,10 @@ func Connect() {
 
 	fmt.Println("Pinging...")
 	err = client.Ping(context.TODO(), nil)
-	
 	if err != nil {
-		log.Fatal(err)	
+		log.Fatal(err)
 	}
+	fmt.Println("Pung")
 	
     db = client.Database("Jessaging")
 
@@ -32,16 +32,11 @@ func Connect() {
 
 func SendMessage(m MessageStruct) {
     collection := db.Collection("messages")
-    fmt.Println("Start Collection connection")
-    fmt.Println("Done Collection connection")
-	fmt.Println(collection)
-    fmt.Println("Collection connection :D")
 	
 	insertResult, err := collection.InsertOne(context.TODO(), m)
 	if err != nil {
 	    log.Fatal(err)
 	}
-	fmt.Println("Added to database")
 	fmt.Println(insertResult)
 }
 
@@ -64,14 +59,32 @@ func GetMessages() []*MessageStruct{
         if err != nil {
             log.Fatal(err)
         }
-        fmt.Println("The message is: " + m.Message)
-
+        
         messages = append(messages, &m)
     }
 
     cur.Close(context.TODO())
 
     return messages
+}
+
+func GetUser(u User) error {
+    var dbUser User
+    collection := db.Collection("users")
+    fmt.Print("Connected")
+    filter := bson.M{"username": u.Username}
+    fmt.Print("Collecting")
+    err := collection.FindOne(context.TODO(), filter).Decode(&dbUser)
+    fmt.Print("Err")
+    if err != nil {
+        fmt.Print(err)
+        return err
+    }else {
+        fmt.Print("Printing")
+        fmt.Print(dbUser)
+        fmt.Print("Printed")
+        return nil
+    }
 }
 
 func TestPrint() {

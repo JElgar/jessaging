@@ -5,13 +5,13 @@ import (
     "fmt"
     "github.com/jelgar/jessage-back/db"
     . "github.com/jelgar/jessage-back/models"
-    "encoding/json"
-    "log"
+//    "encoding/json"
+//    "log"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
      return func(c *gin.Context) {
-         print("Using middleware")
+         //print("Using middleware")
          c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
          c.Writer.Header().Set("Access-Control-Max-Age", "86400")
          c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
@@ -27,13 +27,30 @@ func CORSMiddleware() gin.HandlerFunc {
      }
  }
 
-//var messages []message
-
 func ping(c *gin.Context){
     c.Header("Content-Type", "application/json")
     c.JSON(200, gin.H{
         "word": "Hello",
 	})
+}
+
+func createAccount(c *gin.Context) {
+    var u User
+    c.BindJSON(&u)
+}
+
+func login(c *gin.Context) {
+    //Check if credentials are correct
+    var u User
+    c.BindJSON(&u)
+    e := db.GetUser(u)
+    if e != nil {
+        // Return phat error so react can display user not found message
+        fmt.Println("User not found")
+    }else {
+        fmt.Println("User found")
+        c.JSON(200, u)
+    }
 }
 
 func send(c *gin.Context){
@@ -44,18 +61,9 @@ func send(c *gin.Context){
 
     var messages []*MessageStruct
     messages = db.GetMessages()
-    fmt.Println("The first id is: " + messages[0].ID)
-    fmt.Println("The first message is: " + messages[0].Message)
-    messagesJson, err := json.Marshal(messages[0])
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    fmt.Print(messagesJson)
-    //c.JSON(200, gin.H{
-	//	"response": m.Message,
-	//})
-    c.JSON(200, messagesJson)
+    
+    c.Header("Content-Type", "application/json")
+    c.JSON(200, messages)
 }
 
 func main() {
@@ -64,5 +72,7 @@ func main() {
         r.Use(CORSMiddleware())
         r.GET("/ping", ping)
         r.POST("/send", send)
+        r.POST("/login", login)
+        r.POST("/createAccount", createAccount)
         r.Run(":8080")
 }
