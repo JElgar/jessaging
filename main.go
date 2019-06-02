@@ -37,6 +37,9 @@ func ping(c *gin.Context){
 func createAccount(c *gin.Context) {
     var u User
     c.BindJSON(&u)
+    fmt.Println("The user is:")
+    fmt.Print(u)
+    db.AddUser(u)
 }
 
 func login(c *gin.Context) {

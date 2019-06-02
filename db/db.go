@@ -37,6 +37,7 @@ func SendMessage(m MessageStruct) {
 	if err != nil {
 	    log.Fatal(err)
 	}
+
 	fmt.Println(insertResult)
 }
 
@@ -84,6 +85,26 @@ func GetUser(u User) error {
         fmt.Print(dbUser)
         fmt.Print("Printed")
         return nil
+    }
+}
+
+func AddUser(u User) error {
+    fmt.Println("Adding user function is a go")
+    collection := db.Collection("users")
+    // If the user doesnt already exist them do some stuff
+    if e := GetUser(u); e == nil {
+        fmt.Println("The error is not nil so i think the user already exists")
+        // TODO return a custom error to say user already exists
+        return e
+    }else {
+        fmt.Println("The user is being added as we speak")
+	    insertedUser , err := collection.InsertOne(context.TODO(), u)
+	    if err != nil {
+            return err
+	    }else{
+            fmt.Println(insertedUser)
+            return nil
+        }
     }
 }
 
