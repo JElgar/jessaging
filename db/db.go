@@ -69,22 +69,23 @@ func GetMessages() []*MessageStruct{
     return messages
 }
 
-func GetUser(u User) error {
+func GetUser(u User) (User, error) {
     var dbUser User
     collection := db.Collection("users")
     fmt.Print("Connected")
     filter := bson.M{"username": u.Username}
     fmt.Print("Collecting")
+    // TODO this doesnt work as dbUser is empty
     err := collection.FindOne(context.TODO(), filter).Decode(&dbUser)
-    fmt.Print("Err")
     if err != nil {
+        fmt.Printf("There was an error trying to get the user")
         fmt.Print(err)
-        return err
+        return dbUser, err
     }else {
-        fmt.Print("Printing")
+        fmt.Print("Printing the user that was found in the DB")
         fmt.Print(dbUser)
         fmt.Print("Printed")
-        return nil
+        return dbUser, nil
     }
 }
 
@@ -92,7 +93,7 @@ func AddUser(u User) error {
     fmt.Println("Adding user function is a go")
     collection := db.Collection("users")
     // If the user doesnt already exist them do some stuff
-    if e := GetUser(u); e == nil {
+    if _, e := GetUser(u); e == nil {
         fmt.Println("The error is not nil so i think the user already exists")
         // TODO return a custom error to say user already exists
         return e

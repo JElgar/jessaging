@@ -7,6 +7,7 @@ import (
     . "github.com/jelgar/jessage-back/models"
 //    "encoding/json"
 //    "log"
+//    "github.com/dgrijalva/jwt-go"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -44,15 +45,24 @@ func createAccount(c *gin.Context) {
 
 func login(c *gin.Context) {
     //Check if credentials are correct
-    var u User
-    c.BindJSON(&u)
-    e := db.GetUser(u)
+    // TODO Uhoh these users should be stored seperetly I think 
+    // Should i make the getUser function return a User obj or should I make a new obj here for the two users
+    
+    // Credentials submitted
+    var uSubmited User
+    c.BindJSON(&uSubmited)
+    uDb, e := db.GetUser(uSubmited)
     if e != nil {
         // Return phat error so react can display user not found message
         fmt.Println("User not found")
     }else {
         fmt.Println("User found")
-        c.JSON(200, u)
+        c.JSON(200, uDb)
+
+        if uDb.Password != uSubmited.Password {
+            fmt.Printf("\nDatabase password: %s Form password: %s\n", uDb.Password, uSubmited.Password)
+            fmt.Println("Password Incorrect")
+        }
     }
 }
 
