@@ -8,7 +8,7 @@ import (
     "fmt"
     "log"
     . "github.com/jelgar/jessage-back/models"
-    e "github.com/jelgar/jessage-back/errors"
+     "github.com/jelgar/jessage-back/errors"
 
 )
 
@@ -68,7 +68,7 @@ func GetMessages() []*MessageStruct{
     return messages
 }
 
-func GetUser(u User) (User, e.APIError) {
+func GetUser(u User) (User, errors.APIError) {
     var dbUser User
     collection := db.Collection("users")
     
@@ -77,8 +77,8 @@ func GetUser(u User) (User, e.APIError) {
     
     err := collection.FindOne(context.TODO(), filter).Decode(&dbUser)
     if err != nil {
-        ez := e.APIError{300, "That user doesnt seem to exist", e.CONTENTNOTFOUND}
-        return dbUser, ez
+        e := new APIError{300, "That user doesnt seem to exist", CONTENTNOTFOUND}
+        return dbUser, err
     }else {
         fmt.Print("Printing the user that was found in the DB")
         fmt.Print(dbUser)
@@ -87,11 +87,11 @@ func GetUser(u User) (User, e.APIError) {
     }
 }
 
-func AddUser(u User) APIError {
+func AddUser(u User) error {
     fmt.Println("Adding user function is a go")
     collection := db.Collection("users")
     // If the user doesnt already exist them do some stuff
-    if _, e := GetUser(u); e. == nil {
+    if _, e := GetUser(u); e == nil {
         fmt.Println("The error is not nil so i think the user already exists")
         // TODO return a custom error to say user already exists
         return e

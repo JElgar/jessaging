@@ -5,6 +5,7 @@ import (
     "fmt"
     "github.com/jelgar/jessage-back/db"
     . "github.com/jelgar/jessage-back/models"
+    "net/http"
 //    "encoding/json"
 //    "log"
 //    "github.com/dgrijalva/jwt-go"
@@ -55,6 +56,7 @@ func login(c *gin.Context) {
     if e != nil {
         // Return phat error so react can display user not found message
         fmt.Println("User not found")
+        c.Fail(http.StatusNoContent, errors.New(errorMessage))
     }else {
         fmt.Println("User found")
         c.JSON(200, uDb)
@@ -82,6 +84,7 @@ func send(c *gin.Context){
 func main() {
         db.Connect()
 		r := gin.Default()
+        r.Use(gin.ErrorLogger(gin.ErrorTypeExternal))
         r.Use(CORSMiddleware())
         r.GET("/ping", ping)
         r.POST("/send", send)
